@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { CONTACT_DISPLAY, copy, type Lang, whatsappLink } from "@/lib/site-content";
 
 const LanguageContext = createContext<{ lang: Lang; setLang: (lang: Lang) => void }>({ lang: "en", setLang: () => undefined });
+const NAV_PATHS = ["/", "/products", "/about", "/bulk-orders", "/contact"] as const;
 export function useLanguage() { return useContext(LanguageContext); }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -25,7 +26,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const { lang, setLang } = useLanguage();
   const t = copy[lang];
   const [open, setOpen] = useState(false);
-  const navItems = t.nav.map((label, index) => ({ label, path: t.paths[index] })).filter((item): item is { label: string; path: typeof t.paths[number] } => Boolean(item.path));
+  const navItems = NAV_PATHS.map((path, index) => ({ label: t.nav[index] ?? "", path }));
   return <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
     <header className="glass-nav fixed inset-x-0 top-0 z-50 border-b border-border">
       <div className="page-shell flex h-20 items-center justify-between gap-6">
@@ -55,7 +56,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
 function Footer() {
   const { lang } = useLanguage(); const t = copy[lang];
-  const navItems = t.nav.map((label, index) => ({ label, path: t.paths[index] })).filter((item): item is { label: string; path: typeof t.paths[number] } => Boolean(item.path));
+  const navItems = NAV_PATHS.map((path, index) => ({ label: t.nav[index] ?? "", path }));
   return <footer className="border-t border-border bg-surface">
     <div className="page-shell grid gap-12 py-16 md:grid-cols-[1.5fr_1fr_1fr]">
       <div><div className="mb-5 flex items-center gap-3"><span className="grid size-12 place-items-center rounded-full border border-primary font-display text-primary">ZA</span><span className="font-display text-2xl">Zainab Asghar</span></div><p className="max-w-md text-sm leading-7 text-muted-foreground">{t.footerLine}</p></div>
