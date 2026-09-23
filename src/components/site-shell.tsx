@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import { CONTACT_DISPLAY, copy, type Lang, whatsappLink } from "@/lib/site-content";
 
 const LanguageContext = createContext<{ lang: Lang; setLang: (lang: Lang) => void }>({ lang: "en", setLang: () => undefined });
+const NAV_PATHS = ["/", "/products", "/about", "/bulk-orders", "/contact"] as const;
 export function useLanguage() { return useContext(LanguageContext); }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -25,6 +26,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   const { lang, setLang } = useLanguage();
   const t = copy[lang];
   const [open, setOpen] = useState(false);
+  const navItems = NAV_PATHS.map((path, index) => ({ label: t.nav[index] ?? "", path }));
   return <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
     <header className="glass-nav fixed inset-x-0 top-0 z-50 border-b border-border">
       <div className="page-shell flex h-20 items-center justify-between gap-6">
@@ -33,7 +35,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <span className="font-display text-lg uppercase text-foreground sm:text-xl">Zainab Asghar</span>
         </Link>
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
-          {t.nav.map((label, i) => <Link key={label} to={t.paths[i]} activeOptions={{ exact: i === 0 }} className="text-[11px] font-bold uppercase text-muted-foreground transition-colors hover:text-primary [&[data-status=active]]:text-primary">{label}</Link>)}
+          {navItems.map(({ label, path }, i) => <Link key={label} to={path} activeOptions={{ exact: i === 0 }} className="text-[11px] font-bold uppercase text-muted-foreground transition-colors hover:text-primary [&[data-status=active]]:text-primary">{label}</Link>)}
         </nav>
         <div className="hidden items-center gap-3 sm:flex">
           <button type="button" onClick={() => setLang(lang === "en" ? "ar" : "en")} className="px-2 py-2 text-xs font-bold text-primary" aria-label="Switch language">{t.language}</button>
@@ -42,7 +44,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <button type="button" className="grid size-10 place-items-center text-primary sm:hidden" onClick={() => setOpen(!open)} aria-label={open ? t.close : t.menu}>{open ? <X/> : <Menu/>}</button>
       </div>
       {open && <div className="border-t border-border bg-background px-5 py-6 sm:hidden">
-        <nav className="flex flex-col gap-1">{t.nav.map((label, i) => <Link key={label} to={t.paths[i]} onClick={() => setOpen(false)} className="border-b border-border py-3 text-sm uppercase">{label}</Link>)}</nav>
+        <nav className="flex flex-col gap-1">{navItems.map(({ label, path }) => <Link key={label} to={path} onClick={() => setOpen(false)} className="border-b border-border py-3 text-sm uppercase">{label}</Link>)}</nav>
         <div className="mt-5 flex items-center justify-between"><button type="button" onClick={() => setLang(lang === "en" ? "ar" : "en")} className="text-sm text-primary">{t.language}</button><a href={whatsappLink()} target="_blank" rel="noreferrer" className="gold-button px-4 py-3 text-xs">{CONTACT_DISPLAY}</a></div>
       </div>}
     </header>
@@ -54,10 +56,11 @@ export function SiteShell({ children }: { children: ReactNode }) {
 
 function Footer() {
   const { lang } = useLanguage(); const t = copy[lang];
+  const navItems = NAV_PATHS.map((path, index) => ({ label: t.nav[index] ?? "", path }));
   return <footer className="border-t border-border bg-surface">
     <div className="page-shell grid gap-12 py-16 md:grid-cols-[1.5fr_1fr_1fr]">
       <div><div className="mb-5 flex items-center gap-3"><span className="grid size-12 place-items-center rounded-full border border-primary font-display text-primary">ZA</span><span className="font-display text-2xl">Zainab Asghar</span></div><p className="max-w-md text-sm leading-7 text-muted-foreground">{t.footerLine}</p></div>
-      <div><p className="eyebrow mb-5">{t.navigate}</p><div className="grid gap-3">{t.nav.map((label, i) => <Link key={label} to={t.paths[i]} className="text-sm text-muted-foreground transition-colors hover:text-primary">{label}</Link>)}</div></div>
+      <div><p className="eyebrow mb-5">{t.navigate}</p><div className="grid gap-3">{navItems.map(({ label, path }) => <Link key={label} to={path} className="text-sm text-muted-foreground transition-colors hover:text-primary">{label}</Link>)}</div></div>
       <div><p className="eyebrow mb-5">{t.reach}</p><a href={whatsappLink()} target="_blank" rel="noreferrer" className="text-sm text-primary">{CONTACT_DISPLAY}</a><p className="mt-3 text-sm text-muted-foreground">Sialkot, Pakistan</p></div>
     </div>
     <div className="border-t border-border"><div className="page-shell flex flex-col gap-3 py-5 text-[11px] uppercase text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>© 2026 Zainab Asghar. {t.rights}</span><span>{t.made}</span></div></div>
@@ -70,7 +73,7 @@ export function PageIntro({ kicker, title, lead }: { kicker: string; title: stri
 
 export function InquiryForm({ bulk = false }: { bulk?: boolean }) {
   const { lang } = useLanguage(); const t = copy[lang];
-  const fields = bulk ? [[t.name,"text"],[t.email,"email"],[t.phone,"tel"],[t.company,"text"],[t.country,"text"],[t.quantity,"number"]] : [[t.name,"text"],[t.email,"email"],[t.phone,"tel"]];
+  const fields: Array<[string, string]> = bulk ? [[t.name,"text"],[t.email,"email"],[t.phone,"tel"],[t.company,"text"],[t.country,"text"],[t.quantity,"number"]] : [[t.name,"text"],[t.email,"email"],[t.phone,"tel"]];
   const submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
