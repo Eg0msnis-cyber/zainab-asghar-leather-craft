@@ -4,4 +4,5 @@
 - [x] Build shared navigation, footer, forms, and WhatsApp actions
 - [x] Build home page
 - [x] Build Products, About, Bulk Orders, and Contact pages
+- [ ] Apply revised price chart: jackets PKR 2,000; shoes and other priced items PKR 1,500
 - [ ] Verify pricing, branding, links, languages, and responsive layouts
